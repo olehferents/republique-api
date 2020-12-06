@@ -14,6 +14,14 @@ app.use(cookieParser());
 
 app.use('/api', router);
 
+app.use((err, req, res, next) => {
+    if (!err) {
+        next();
+    }
+    console.error(err);
+    res.status(500).send('500: Internal server error!');
+})
+
 db.sequelize.sync({
     force: true,
 })
