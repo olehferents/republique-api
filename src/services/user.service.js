@@ -1,12 +1,11 @@
-const jwt = require("jsonwebtoken");
 const { User } = require('./../models');
-const { JWT_SECRET } = require('./../config');
 
 module.exports = {
-    async checkIfExists(email) {
+    async checkIfExists(email, password) {
         const user = await User.findOne({
             where: {
                 email,
+                password,
             }
         });
         return !!user;
@@ -33,5 +32,9 @@ module.exports = {
             },
         });
         return user;
+    },
+
+    async validatePassword(password) {
+        return password && User.validPassword(password);
     },
 }
