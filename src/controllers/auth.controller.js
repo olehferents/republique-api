@@ -4,12 +4,17 @@ const { JWT_SECRET } = require('./../config');
 
 module.exports = {
     async signIn(req, res) {
-        const { email, password } = req.body;
-        const isUserExists = await userService.checkIfExists(email, password);
+        const { email } = req.body;
+        const isUserExists = await userService.checkIfExists(email);
         if(isUserExists) {
             const user = await userService.getUserByEmail(email);
             const accessToken = jwt.sign({ userId: user.id }, JWT_SECRET);
-
+            const isPasswordValid = await userService.validatePassword(req.body);
+            if (!isPasswordValid) {
+                return res.status(412).send({
+                    message: 'Wrong password!',
+                });
+            }
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
             res.send({
@@ -25,15 +30,9 @@ module.exports = {
     },
 
     async signUp(req, res) {
-        const { email, password } = req.body;
-        const isUserExists = await userService.checkIfExists(email, password);
+        const { email } = req.body;
+        const isUserExists = await userService.checkIfExists(email);
         if (isUserExists) {
-            const isPasswordValid = await userService.validatePassword(password);
-            if (!isPasswordValid) {
-                return res.status(412).send({
-                    message: 'Wrong password!',
-                });
-            }
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
             res.status(412).send({
