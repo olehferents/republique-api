@@ -18,7 +18,6 @@ module.exports = {
         return {
             id: created.id,
             email: created.email,
-            password: created.password,
         };
     },
 
@@ -43,6 +42,8 @@ module.exports = {
     async validatePassword(user) {
         const { email, password } = user;
         const dbUser = await this.getUserByEmail(email);
-        return password && !bcrypt.compareSync(password, dbUser.password)
+        const isValid = await bcrypt.compare(password, dbUser.dataValues.password);
+
+        return password && isValid;
     },
 }
